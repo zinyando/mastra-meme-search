@@ -1,24 +1,22 @@
-# Meme Search Engine
+# Mastra Meme Search
 
-A powerful meme search engine that uses AI to understand and find memes based on natural language queries. The system scrapes memes from Know Your Meme, generates AI descriptions, and enables semantic search using pgvector.
+A semantic meme search engine that uses AI to understand and find memes based on natural language queries. Built with Mastra's document processing capabilities, the system scrapes memes from Know Your Meme and enables semantic search using pgvector.
 
 ## Features
 
-- Scrapes memes from Know Your Meme
-- Generates AI descriptions for memes using GPT-4 Vision
-- Semantic search using pgvector in Supabase
-- Modern, responsive UI with Next.js
-- Image modal with original source links
+- Scrapes memes from Know Your Meme using Mastra's document processing
+- Stores meme metadata and embeddings in PostgreSQL with pgvector
+- Semantic search using text embeddings
+- Next.js-based API endpoints
+- Built with TypeScript for type safety
 
 ## Prerequisites
 
 - Node.js 18+ and npm
-- Supabase account
-- OpenAI API key
+- PostgreSQL with pgvector extension
 - Environment variables:
   ```
-  NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-  SUPABASE_SERVICE_KEY=your_supabase_service_key
+  POSTGRES_CONNECTION_STRING=your_postgres_connection_string
   OPENAI_API_KEY=your_openai_api_key
   ```
 
@@ -29,14 +27,16 @@ A powerful meme search engine that uses AI to understand and find memes based on
    npm install
    ```
 
-2. Set up Supabase:
-   - Create a new Supabase project
-   - Run the SQL scripts in `supabase/schema.sql` and `supabase/functions/match_memes.sql`
-   - Copy your project URL and service key
+2. Set up PostgreSQL:
+   - Ensure pgvector extension is installed
+   - Run the schema creation script:
+     ```bash
+     psql $POSTGRES_CONNECTION_STRING -f schema.sql
+     ```
 
 3. Configure environment:
-   - Copy `.env.example` to `.env.local`
-   - Fill in your Supabase and OpenAI credentials
+   - Copy `.env.example` to `.env`
+   - Set your PostgreSQL connection string and OpenAI API key
 
 4. Run the development server:
    ```bash
@@ -48,32 +48,48 @@ A powerful meme search engine that uses AI to understand and find memes based on
    import { memeRagWorkflow } from './src/mastra/workflows';
 
    await memeRagWorkflow.trigger({
-     startPage: 1,
-     batchSize: 100,
-     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-     supabaseKey: process.env.SUPABASE_SERVICE_KEY,
-     openaiKey: process.env.OPENAI_API_KEY,
+     page: 1
    });
    ```
 
-## Usage
-
-1. Open http://localhost:3000 in your browser
-2. Enter a search query in the search box
-3. Results will be displayed in a grid
-4. Click on a meme to view details and the original source
-
 ## Architecture
 
-- **Frontend**: Next.js with TypeScript and Tailwind CSS
+- **Frontend**: Next.js with TypeScript
 - **Backend**: 
   - Next.js API routes for search endpoints
-  - Supabase for vector storage and similarity search
-  - OpenAI for embeddings and image description
+  - PostgreSQL with pgvector for vector storage and similarity search
+  - OpenAI for text embeddings
 - **Data Pipeline**:
-  - Puppeteer for web scraping
-  - GPT-4 Vision for meme description
-  - text-embedding-ada-002 for vector embeddings
+  - Mastra's document processing for web scraping
+  - OpenAI embeddings for vector search
+  - Mastra workflows for orchestration
+
+## API Endpoints
+
+### POST /api/search
+Search for memes using natural language queries.
+
+Request body:
+```json
+{
+  "query": "your search query"
+}
+```
+
+Response:
+```json
+{
+  "memes": [
+    {
+      "url": "meme source url",
+      "imageUrl": "meme image url",
+      "title": "meme title",
+      "aiDescription": "AI-generated description"
+    }
+  ],
+  "scores": [0.95, 0.85] // similarity scores
+}
+```
 
 ## License
 
