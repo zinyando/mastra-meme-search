@@ -12,6 +12,18 @@ interface Meme {
   ai_description: string;
 }
 
+function MemeCardSkeleton() {
+  return (
+    <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden animate-pulse">
+      <div className="relative h-48 bg-gray-200" />
+      <div className="p-4">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+        <div className="h-3 bg-gray-200 rounded w-1/2" />
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [query, setQuery] = useState('');
   const [memes, setMemes] = useState<Meme[]>([]);
@@ -20,6 +32,8 @@ export default function Home() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!query.trim()) return;
+
     setLoading(true);
     try {
       const response = await fetch('/api/search', {
@@ -60,26 +74,34 @@ export default function Home() {
 
       {/* Results Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-        {memes.map((meme) => (
-          <div
-            key={meme.id}
-            className="bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition hover:scale-105"
-            onClick={() => setSelectedMeme(meme)}
-          >
-            <div className="relative h-48">
-              <Image
-                src={meme.imageUrl}
-                alt={meme.title}
-                fill
-                className="object-cover"
-              />
+        {loading ? (
+          // Show loading skeletons
+          Array.from({ length: 6 }).map((_, index) => (
+            <MemeCardSkeleton key={index} />
+          ))
+        ) : (
+          // Show actual meme results
+          memes.map((meme) => (
+            <div
+              key={meme.id}
+              className="bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition hover:scale-105"
+              onClick={() => setSelectedMeme(meme)}
+            >
+              <div className="relative h-48">
+                <Image
+                  src={meme.imageUrl}
+                  alt={meme.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-lg mb-2 text-white">{meme.title}</h3>
+                <p className="text-gray-300 line-clamp-2">{meme.ai_description}</p>
+              </div>
             </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-2 text-white">{meme.title}</h3>
-              <p className="text-gray-300 line-clamp-2">{meme.ai_description}</p>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Meme Detail Modal */}
