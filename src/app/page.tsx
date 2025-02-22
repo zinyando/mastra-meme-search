@@ -28,6 +28,7 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [memes, setMemes] = useState<Meme[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [selectedMeme, setSelectedMeme] = useState<Meme | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -35,6 +36,7 @@ export default function Home() {
     if (!query.trim()) return;
 
     setLoading(true);
+    setHasSearched(true);
     try {
       const response = await fetch('/api/search', {
         method: 'POST',
@@ -52,56 +54,58 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-8 bg-gray-900 text-white">
-      {/* Search Form */}
-      <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
-        <div className="flex gap-4">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for memes..."
-            className="flex-1 p-4 rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            disabled={loading || !query.trim()}
-            className="px-8 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Searching...' : 'Search'}
-          </button>
-        </div>
-      </form>
-
-      {/* Results Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-        {loading ? (
-          // Show loading skeletons
-          Array.from({ length: 6 }).map((_, index) => (
-            <MemeCardSkeleton key={index} />
-          ))
-        ) : (
-          // Show actual meme results
-          memes.map((meme) => (
-            <div
-              key={meme.id}
-              className="bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition hover:scale-105"
-              onClick={() => setSelectedMeme(meme)}
+      <div className={`transition-all duration-500 ease-in-out ${hasSearched ? 'mt-0' : 'mt-[40vh]'}`}>
+        {/* Search Form */}
+        <form onSubmit={handleSearch} className={`max-w-2xl mx-auto mb-8 transition-all duration-500`}>
+          <div className="flex gap-4">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search for memes..."
+              className="flex-1 p-4 rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              disabled={loading || !query.trim()}
+              className="px-8 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <div className="relative h-48">
-                <Image
-                  src={meme.imageUrl}
-                  alt={meme.title}
-                  fill
-                  className="object-cover"
-                />
+              {loading ? 'Searching...' : 'Search'}
+            </button>
+          </div>
+        </form>
+
+        {/* Results Grid */}
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto transition-opacity duration-500 ${hasSearched ? 'opacity-100' : 'opacity-0'}`}>
+          {loading ? (
+            // Show loading skeletons
+            Array.from({ length: 6 }).map((_, index) => (
+              <MemeCardSkeleton key={index} />
+            ))
+          ) : (
+            // Show actual meme results
+            memes.map((meme) => (
+              <div
+                key={meme.id}
+                className="bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition hover:scale-105"
+                onClick={() => setSelectedMeme(meme)}
+              >
+                <div className="relative h-48">
+                  <Image
+                    src={meme.imageUrl}
+                    alt={meme.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-2 text-white">{meme.title}</h3>
+                  <p className="text-gray-300 line-clamp-2">{meme.ai_description}</p>
+                </div>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 text-white">{meme.title}</h3>
-                <p className="text-gray-300 line-clamp-2">{meme.ai_description}</p>
-              </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
       {/* Meme Detail Modal */}
