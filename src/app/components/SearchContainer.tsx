@@ -76,21 +76,21 @@ export default function SearchContainer() {
   }, [initialQuery, handleSearch]);
 
   return (
-    <div className={`transition-all duration-500 ease-in-out ${hasSearched ? 'mt-0' : 'mt-[40vh]'}`}>
+    <div className={`h-full p-4 md:p-8 flex flex-col ${hasSearched ? '' : 'items-center justify-center'}`}>
       {/* Search Form */}
-      <form onSubmit={handleSearch} className={`max-w-2xl mx-auto mb-8 transition-all duration-500`}>
-        <div className="flex gap-4">
+      <form onSubmit={handleSearch} className={`w-full max-w-2xl mx-auto mb-8 transition-all duration-500 ${hasSearched ? '' : '-translate-y-1/4'}`}>
+        <div className="flex gap-2 md:gap-4">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for memes..."
-            className="flex-1 p-4 rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-3 md:p-4 text-sm md:text-base rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="px-8 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 md:px-8 py-3 md:py-4 text-sm md:text-base bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Searching...' : 'Search'}
           </button>
@@ -98,7 +98,7 @@ export default function SearchContainer() {
       </form>
 
       {/* Results Grid */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto transition-opacity duration-500 ${hasSearched ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-7xl mx-auto transition-opacity duration-500 ${hasSearched ? 'opacity-100' : 'opacity-0'}`}>
         {loading ? (
           // Show loading skeletons
           Array.from({ length: 6 }).map((_, index) => (
