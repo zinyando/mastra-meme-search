@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -35,11 +35,17 @@ export default function SearchContainer() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(!!initialQuery);
   const [selectedMeme, setSelectedMeme] = useState<Meme | null>(null);
+  const queryRef = useRef(query);
+
+  // Keep queryRef in sync with query state
+  useEffect(() => {
+    queryRef.current = query;
+  }, [query]);
 
   const handleSearch = useCallback(async (e: React.FormEvent | null, initialSearchQuery?: string) => {
     if (e) e.preventDefault();
     
-    const searchQuery = initialSearchQuery || query;
+    const searchQuery = initialSearchQuery || queryRef.current;
     if (!searchQuery.trim()) return;
 
     // Update URL with search query
