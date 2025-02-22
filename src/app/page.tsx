@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface Meme {
   id: string;
@@ -25,15 +26,31 @@ function MemeCardSkeleton() {
 }
 
 export default function Home() {
-  const [query, setQuery] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('q') || '';
+  
+  const [query, setQuery] = useState(initialQuery);
   const [memes, setMemes] = useState<Meme[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(!!initialQuery);
   const [selectedMeme, setSelectedMeme] = useState<Meme | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  // Perform initial search if query parameter exists
+  useEffect(() => {
+    if (initialQuery) {
+      handleSearch(null, initialQuery);
+    }
+  }, []);
+
+  const handleSearch = async (e: React.FormEvent | null, initialSearchQuery?: string) => {
+    if (e) e.preventDefault();
+    
+    const searchQuery = initialSearchQuery || query;
+    if (!searchQuery.trim()) return;
+
+    // Update URL with search query
+    router.push(`/?q=${encodeURIComponent(searchQuery)}`);
 
     setLoading(true);
     setHasSearched(true);
@@ -41,7 +58,7 @@ export default function Home() {
       const response = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query: searchQuery }),
       });
       const data = await response.json();
       setMemes(data.memes || []);
