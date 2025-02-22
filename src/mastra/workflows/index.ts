@@ -208,7 +208,14 @@ const storeEmbeddingsStep = new Step({
     }
 
     const embeddings = memesWithEmbeddings.map((m) => m.embedding);
-    const memes = memesWithEmbeddings.map(({ embedding, ...meme }) => meme);
+    const memes = memesWithEmbeddings.map(
+      ({ url, imageUrl, title, aiDescription }) => ({
+        url,
+        imageUrl,
+        title,
+        aiDescription,
+      })
+    );
 
     await storeMemeEmbedding(embeddings, memes);
     return { success: true };
