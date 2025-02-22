@@ -60,7 +60,7 @@ export default function SearchContainer() {
     } finally {
       setLoading(false);
     }
-  }, [query, router]);
+  }, [router]);
 
   // Perform initial search if query parameter exists
   useEffect(() => {
