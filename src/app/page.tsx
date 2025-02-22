@@ -7,7 +7,7 @@ import Link from 'next/link';
 interface Meme {
   id: string;
   url: string;
-  image_url: string;
+  imageUrl: string;
   title: string;
   ai_description: string;
 }
@@ -68,7 +68,7 @@ export default function Home() {
           >
             <div className="relative h-48">
               <Image
-                src={meme.image_url}
+                src={meme.imageUrl}
                 alt={meme.title}
                 fill
                 className="object-cover"
@@ -98,7 +98,7 @@ export default function Home() {
               </div>
               <div className="relative h-96 mb-4">
                 <Image
-                  src={selectedMeme.image_url}
+                  src={selectedMeme.imageUrl}
                   alt={selectedMeme.title}
                   fill
                   className="object-contain"
