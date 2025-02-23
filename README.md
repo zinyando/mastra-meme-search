@@ -4,20 +4,33 @@ A semantic meme search engine that uses AI to understand and find memes based on
 
 ## Features
 
-- Scrapes memes from Know Your Meme using Mastra's document processing
-- Stores meme metadata and embeddings in PostgreSQL with pgvector
-- Semantic search using text embeddings
-- Next.js-based API endpoints
-- Built with TypeScript for type safety
+- Semantic meme search with natural language understanding
+- Real-time search interface with instant results
+- Responsive design with modern UI components
+- Clear search functionality with URL state management
+- Meme scraping from Know Your Meme using Mastra's Firecrawl
+- Vector embeddings stored in PostgreSQL with pgvector
+- Built with Next.js 15 and TypeScript for type safety
+
+## Tech Stack
+
+- Next.js 15.1.7 with Turbopack
+- React 19
+- TypeScript 5.7
+- Tailwind CSS 3.4
+- PostgreSQL with pgvector
+- Mastra Core and Firecrawl for web scraping
+- OpenAI for embeddings generation
 
 ## Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 20+ and npm
 - PostgreSQL with pgvector extension
 - Environment variables:
   ```
   POSTGRES_CONNECTION_STRING=your_postgres_connection_string
   OPENAI_API_KEY=your_openai_api_key
+  FIRECRAWL_API_KEY=your_firecrawl_api_key
   ```
 
 ## Setup
@@ -34,23 +47,25 @@ A semantic meme search engine that uses AI to understand and find memes based on
      psql $POSTGRES_CONNECTION_STRING -f schema.sql
      ```
 
-3. Configure environment:
-   - Copy `.env.example` to `.env`
-   - Set your PostgreSQL connection string and OpenAI API key
+3. Set up environment variables as listed in the Prerequisites section
 
 4. Run the development server:
    ```bash
    npm run dev
    ```
 
-5. Run the meme scraper workflow:
-   ```typescript
-   import { memeRagWorkflow } from './src/mastra/workflows';
-
-   await memeRagWorkflow.trigger({
-     page: 1
-   });
+5. Run the meme scraper:
+   ```bash
+   npm run scrape
    ```
+
+## Development
+
+- `npm run dev` - Start development server with Turbopack
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run scrape` - Run meme scraper script
 
 ## Architecture
 
