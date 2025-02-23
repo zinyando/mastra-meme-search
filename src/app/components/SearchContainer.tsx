@@ -35,12 +35,57 @@ export default function SearchContainer() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(!!initialQuery);
   const [selectedMeme, setSelectedMeme] = useState<Meme | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [preventSuggestions, setPreventSuggestions] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const queryRef = useRef(query);
 
   // Keep queryRef in sync with query state
   useEffect(() => {
     queryRef.current = query;
   }, [query]);
+
+  // Handle clicks outside of search container
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Fetch suggestions when query changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!query.trim() || query.length < 2 || preventSuggestions) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+        const data = await response.json();
+        setSuggestions(data.suggestions || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [query, preventSuggestions]);
 
   // Control body scroll when modal is open
   useEffect(() => {
@@ -66,6 +111,7 @@ export default function SearchContainer() {
 
     setLoading(true);
     setHasSearched(true);
+    setPreventSuggestions(true);
     try {
       const response = await fetch('/api/search', {
         method: 'POST',
@@ -88,16 +134,29 @@ export default function SearchContainer() {
     }
   }, [initialQuery, handleSearch]);
 
+  // Handle suggestion selection
+  const handleSuggestionClick = useCallback((suggestion: string) => {
+    setQuery(suggestion);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setPreventSuggestions(true);
+    handleSearch(null, suggestion);
+  }, [handleSearch]);
+
   return (
     <div className={`h-full ${hasSearched ? 'overflow-auto' : 'overflow-hidden'} p-4 md:p-8 flex flex-col ${hasSearched ? '' : 'items-center'}`}>
       {/* Search Form */}
       <form onSubmit={handleSearch} className={`w-full max-w-2xl mx-auto mb-8 transition-all duration-500 ${hasSearched ? '' : 'mt-[35vh]'}`}>
         <div className="flex gap-2 md:gap-4">
-          <div className="relative flex-1">
+          <div className="relative flex-1" ref={searchContainerRef}>
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPreventSuggestions(false);
+              }}
+              onFocus={() => query.trim() && !preventSuggestions && setShowSuggestions(true)}
               placeholder="Search for memes..."
               className="w-full p-3 md:p-4 text-base rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -109,6 +168,8 @@ export default function SearchContainer() {
                   router.push('/');
                   setHasSearched(false);
                   setMemes([]);
+                  setSuggestions([]);
+                  setShowSuggestions(false);
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
               >
@@ -116,6 +177,21 @@ export default function SearchContainer() {
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </button>
+            )}
+            
+            {/* Suggestions dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg">
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
           <button
