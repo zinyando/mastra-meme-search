@@ -170,15 +170,20 @@ export default function SearchContainer() {
                   className="object-contain"
                 />
               </div>
-              <p className="text-gray-300 mb-4">{selectedMeme.ai_description}</p>
-              <Link
-                href={selectedMeme.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 hover:underline"
-              >
-                View Original Source →
-              </Link>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-300 mb-2">AI Description</h3>
+                  <p className="text-gray-400">{selectedMeme.ai_description}</p>
+                </div>
+                <Link
+                  href={selectedMeme.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-blue-400 hover:text-blue-300 hover:underline"
+                >
+                  View on knowyourmeme.com →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
