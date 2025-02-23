@@ -42,6 +42,19 @@ export default function SearchContainer() {
     queryRef.current = query;
   }, [query]);
 
+  // Control body scroll when modal is open
+  useEffect(() => {
+    if (selectedMeme) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedMeme]);
+
   const handleSearch = useCallback(async (e: React.FormEvent | null, initialSearchQuery?: string) => {
     if (e) e.preventDefault();
     
@@ -76,7 +89,7 @@ export default function SearchContainer() {
   }, [initialQuery, handleSearch]);
 
   return (
-    <div className={`h-full p-4 md:p-8 flex flex-col ${hasSearched ? '' : 'items-center justify-center'}`}>
+    <div className={`h-full ${hasSearched ? 'overflow-auto' : 'overflow-hidden'} p-4 md:p-8 flex flex-col ${hasSearched ? '' : 'items-center justify-center'}`}>
       {/* Search Form */}
       <form onSubmit={handleSearch} className={`w-full max-w-2xl mx-auto mb-8 transition-all duration-500 ${hasSearched ? '' : '-translate-y-1/4'}`}>
         <div className="flex gap-2 md:gap-4">
@@ -131,8 +144,14 @@ export default function SearchContainer() {
 
       {/* Meme Detail Modal */}
       {selectedMeme && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedMeme(null)}
+        >
+          <div 
+            className="bg-gray-800 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold text-white">{selectedMeme.title}</h2>
