@@ -10,7 +10,7 @@ interface Meme {
   url: string;
   imageUrl: string;
   title: string;
-  ai_description: string;
+  aiDescription: string;
 }
 
 function MemeCardSkeleton() {
@@ -135,7 +135,7 @@ export default function SearchContainer() {
               </div>
               <div className="p-4">
                 <h3 className="font-semibold text-lg mb-2 text-white">{meme.title}</h3>
-                <p className="text-gray-300 line-clamp-2">{meme.ai_description}</p>
+                <p className="text-gray-300 line-clamp-2">{meme.aiDescription}</p>
               </div>
             </div>
           ))
@@ -173,7 +173,7 @@ export default function SearchContainer() {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-300 mb-2">AI Description</h3>
-                  <p className="text-gray-400">{selectedMeme.ai_description}</p>
+                  <p className="text-gray-400">{selectedMeme.aiDescription}</p>
                 </div>
                 <Link
                   href={selectedMeme.url}
