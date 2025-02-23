@@ -112,6 +112,9 @@ export default function SearchContainer() {
     setLoading(true);
     setHasSearched(true);
     setPreventSuggestions(true);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    
     try {
       const response = await fetch('/api/search', {
         method: 'POST',
